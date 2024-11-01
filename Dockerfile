@@ -1,14 +1,18 @@
-# Use a lightweight base image
-FROM nginx:alpine
+FROM ubuntu:latest
 
-# Set the working directory to the web root
-WORKDIR /usr/share/nginx/html
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y wget curl && \
+    apt-get clean
 
-# Copy all files and folders from the code directory to the container
-COPY . .
+# Download Honeygain
+RUN wget -O honeygain.deb https://github.com/honeygain/honeygain/releases/latest/download/honeygain_1.0.0_amd64.deb && \
+    apt-get install -y ./honeygain.deb && \
+    rm honeygain.deb
 
-# Expose the default Nginx port
-EXPOSE 80
+# Create a script to run Honeygain
+RUN echo '#!/bin/bash\nhoneygain -u kripeshmainali024@gmail.com -p pokemongo123' > /start_honeygain.sh && \
+    chmod +x /start_honeygain.sh
 
-# Command to run when the container starts
-CMD ["nginx", "-g", "daemon off;"]
+# Set the command to run Honeygain
+CMD ["/start_honeygain.sh"]
